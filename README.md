@@ -2,22 +2,11 @@
 
 A Python library and CLI for accessing BART (Bay Area Rapid Transit) real-time departure information
 
-## Features
-
-- Simple, Pythonic API for accessing BART real-time information
-- Command-line interface for checking departure times
-- BitBar plugin for displaying BART information in your macOS menu bar
-- Object-oriented interface that abstracts away XML parsing
-- Terminal color support for train line colors
-
 ## Installation
 
 ```bash
 # clone the repository
-git clone https://github.com/felix-red-panda/BARTpy.git
-
-# install requirements
-pip install -r requirements.txt
+pip install git+https://github.com/felix-red-panda/bart-api.git
 ```
 
 ## Usage
