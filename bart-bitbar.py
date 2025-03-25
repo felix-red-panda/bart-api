@@ -12,6 +12,7 @@ STATION = "24th"
 
 # Code
 from BART import BART
+
 bart = BART()
 
 print(f"{TITLE} | dropdown=false")
@@ -22,4 +23,6 @@ for departure in bart[STATION].departures:
     print("---")
     print(f"{departure.destination} | color=white")
     for index, train in enumerate(departure.trains):
-        print(f"{index + 1}) {len(train)} car train in {train.minutes} | color={train.color}")
+        print(
+            f"{index + 1}) {len(train)} car train in {train.minutes} | color={train.color}"
+        )

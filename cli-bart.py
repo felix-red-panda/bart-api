@@ -13,7 +13,7 @@ BOLD = ""
 DEFAULT = ""
 
 # Pretty colors for the good operating systems
-if platform.system().lower() in ['linux', 'darwin']:
+if platform.system().lower() in ["linux", "darwin"]:
     BOLD = "\033[1m"
     DEFAULT = "\033[0m"
 
@@ -30,9 +30,14 @@ def display_trains(station, no_color=False):
         for index, train in enumerate(departure.trains):
             if not no_color:
                 sys.stdout.write(BOLD + train.term_color)
-            sys.stdout.write("%d) %d car train in %s" % (
-                index + 1, len(train), train.minutes,
-            ))
+            sys.stdout.write(
+                "%d) %d car train in %s"
+                % (
+                    index + 1,
+                    len(train),
+                    train.minutes,
+                )
+            )
             if not no_color:
                 sys.stdout.write(DEFAULT)
             sys.stdout.write("\n")
@@ -53,19 +58,21 @@ def _main(args):
         display_trains(args.station, args.no_color)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Command line access to BART schedules',
+        description="Command line access to BART schedules",
     )
-    parser.add_argument('--station', '-s',
-                        help='the station to pull information about',
-                        dest='station')
-    parser.add_argument('--list', '-l',
-                        help='list all station names',
-                        action='store_true',
-                        dest='ls')
-    parser.add_argument('--no-color', '-c',
-                        help='disable terminal colors',
-                        action='store_true',
-                        dest='no_color')
+    parser.add_argument(
+        "--station", "-s", help="the station to pull information about", dest="station"
+    )
+    parser.add_argument(
+        "--list", "-l", help="list all station names", action="store_true", dest="ls"
+    )
+    parser.add_argument(
+        "--no-color",
+        "-c",
+        help="disable terminal colors",
+        action="store_true",
+        dest="no_color",
+    )
     _main(parser.parse_args())
