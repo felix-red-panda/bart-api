@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-'''
+#!/usr/bin/env python3
+"""
 A command line interface to the BART
-'''
+"""
 
 import sys
 import argparse

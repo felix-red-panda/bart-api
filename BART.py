@@ -1,24 +1,20 @@
-'''
+"""
 
 BART objects, so we don't have to think about the XML
 we just play with Python objects and it's all abstracted away.
 
-'''
+"""
 
-import urllib
-import urllib2
+import requests
 import platform as py_platform
 import xml.etree.cElementTree as ET
-
 from datetime import timedelta
-
 
 TERM_COLORS = {
     "default": "\033[0m",
     "red": "\033[31m",
     "blue": "\033[36m",
     "green": "\033[32m",
-
     # The yellow kinda looks like orange
     "yellow": "\033[33m",
 
@@ -27,23 +23,21 @@ TERM_COLORS = {
     "orange": "\033[35m",
 }
 
-
 class XMLHelper(object):
-
-    ''' Base object with helper functions to deail with XML '''
+    """ Base object with helper functions to deal with XML """
 
     def get_first_child(self, et, tag):
-        ''' Return a child tag with a given name '''
-        kids = filter(lambda child: child.tag == tag, et.getchildren())
-        return kids[0] if len(kids) else ValueError("No child tag %s" % tag)
+        """ Return the first child with a given tag """
+        kids = [child for child in et if child.tag == tag]
+        return kids[0] if kids else ValueError("No child tag %s" % tag)
 
     def get_all_children(self, et, tag):
-        return filter(lambda child: child.tag == tag, et.getchildren())
-
+        """ Return all children with a given tag """
+        return [child for child in et if child.tag == tag]
 
 class Train(XMLHelper):
 
-    ''' A single train '''
+    """ A single train """
 
     def __init__(self, et, departure):
         self.minutes = self.get_first_child(et, 'minutes').text
@@ -57,12 +51,12 @@ class Train(XMLHelper):
 
     @property
     def minutes(self):
-        ''' Returns the minutes as a timedelta '''
+        """ Returns the minutes as a timedelta """
         return self._minutes
 
     @minutes.setter
     def minutes(self, value):
-        ''' Convert annoying "leaving" string to int '''
+        """ Convert annoying "leaving" string to int """
         if value.lower() == 'leaving':
             value = 0
         self._minutes = timedelta(minutes=int(value))
@@ -93,10 +87,10 @@ class Train(XMLHelper):
 
     @property
     def term_color(self):
-        '''
+        """
         Return the terminal version of the color, no support for windows
         terminal but for compatability we return an empty string.
-        '''
+        """
         if py_platform.system().lower() in ['linux', 'darwin']:
             return TERM_COLORS.get(self.color.lower(), "")
         else:
@@ -112,9 +106,9 @@ class Train(XMLHelper):
 
 class Departure(XMLHelper):
 
-    '''
+    """
     This is a basically the train lines/departures to a given destination
-    '''
+    """
 
     def __init__(self, et):
         self.destination = self.get_first_child(et, 'destination').text
@@ -129,7 +123,7 @@ class Departure(XMLHelper):
 
 class Station(XMLHelper):
 
-    ''' The BART stations '''
+    """ The BART stations """
 
     def __init__(self, et):
         self.name = self.get_first_child(et, 'name').text
@@ -139,38 +133,36 @@ class Station(XMLHelper):
 
     @property
     def north(self):
-        ''' All north bound trains '''
+        """ All north bound trains """
         return filter(lambda train: train.direction.lower() == "north", self)
 
     @property
     def south(self):
-        ''' All south bound trains '''
+        """ All south bound trains """
         return filter(lambda train: train.direction.lower() == "south", self)
 
     def __getitem__(self, key):
-        '''
+        """
         We return the Departure for a given key (destination). When we filter
         for the key we get a list, but it will only ever be empty or contain a
         single object, so we return the Departure or None.
-        '''
+        """
         key = key.lower()
         departs = filter(
             lambda depart: depart.destination.lower() == key, self.departures)
         return departs[0] if len(departs) else None
 
     def __iter__(self):
-        ''' Just iterate all the trains in the station '''
+        """ Just iterate all the trains in the station """
         for departure in self.departures:
             for train in departure:
                 yield train
 
 
-class BART(object):
-
-    '''
-    This class represents the entire BART system
-    '''
-
+class BART:
+    """
+    This class represents the entire BART system.
+    """
     API_URL = "http://api.bart.gov/api/etd.aspx"
 
     STATION_NAMES = {
@@ -225,28 +217,27 @@ class BART(object):
         self.api_key = api_key
 
     def api_request(self, **parameters):
-        '''
-        Creates the HTTPRequest object and automatically adds the
-        API key.
-        '''
+        """
+        Creates the HTTP request and automatically adds the API key.
+        """
         parameters['key'] = self.api_key
-        params = urllib.urlencode(parameters)
-        response = urllib2.urlopen(self.API_URL + '?' + params)
-        return ET.fromstring(response.read())
+        response = requests.get(self.API_URL, params=parameters)
+        response.raise_for_status()  # Raise an error for bad status codes
+        return ET.fromstring(response.content)
 
     def _get_station(self, name):
-        '''
+        """
         Get the details for a single station from the API.
-        TODO: Raise exceptions if the API returns an error.
-        '''
+        """
         resp = self.api_request(cmd='etd', orig=name)
-        kids = resp.getchildren()
-        stations = filter(lambda child: child.tag == 'station', kids)
+        # Instead of using getchildren(), we iterate directly:
+        stations = [child for child in resp if child.tag == 'station']
+        if not stations:
+            raise ValueError("No station found for %s" % name)
         return Station(stations[0])
 
     def __getitem__(self, key):
-        ''' We handle both the abbreviation and full name '''
-        for abbr, name in self.STATION_NAMES.iteritems():
+        for abbr, name in self.STATION_NAMES.items():
             if key.lower() == abbr or key in name:
                 return self._get_station(abbr)
         raise KeyError("Not a valid station name")

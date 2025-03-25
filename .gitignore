@@ -49,3 +49,10 @@ pip-log.txt
 
 __pycache__
 */__pycache__
+.idea
+.vscode
+*.pyo
+__pycache__
+!/**/.gitkeep
+bin/*
+.DS_Store

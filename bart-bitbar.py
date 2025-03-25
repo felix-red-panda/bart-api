@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # <bitbar.title>BART</bitbar.title>
 # <bitbar.version>v1.0</bitbar.version>
@@ -7,20 +7,19 @@
 # <bitbar.desc>Get BART times.</bitbar.desc>
 # <bitbar.dependencies>python</bitbar.dependencies>
 
-TITLE="🚈"
-STATION="24th"
+TITLE = "🚈"
+STATION = "24th"
 
 # Code
 from BART import BART
 bart = BART()
 
-print "%s | dropdown=false" % TITLE
-print "---"
-print "%s" % BART.STATION_NAMES[STATION]
+print(f"{TITLE} | dropdown=false")
+print("---")
+print(f"{BART.STATION_NAMES[STATION]}")
 
 for departure in bart[STATION].departures:
-    print "---"
-    print "%s| color=white" % (departure.destination)
+    print("---")
+    print(f"{departure.destination} | color=white")
     for index, train in enumerate(departure.trains):
-        print "%d) %d car train in %s | color=%s" % (
-            index + 1, len(train), train.minutes, train.color)
+        print(f"{index + 1}) {len(train)} car train in {train.minutes} | color={train.color}")
