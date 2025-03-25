@@ -5,7 +5,6 @@ A Python library and CLI for accessing BART (Bay Area Rapid Transit) real-time d
 ## Installation
 
 ```bash
-# clone the repository
 pip install git+https://github.com/felix-red-panda/bart-api.git
 ```
 
@@ -16,7 +15,7 @@ pip install git+https://github.com/felix-red-panda/bart-api.git
 ```python
 from BART import BART
 
-# create a BART instance (optional API key, defaults to public key that the creator of the python2 package provided)
+# create a BART instance (optional API key, defaults to a hardcoded API key)
 bart = BART()
 
 # get information for a station by name or abbreviation
@@ -53,7 +52,7 @@ The package uses abbreviations for station names. Here are some common ones, a f
 - `civc`: Civic Center
 - `16th`: 16th St. Mission
 
-Use the `--list` option in the CLI to see all available stations.
+Use the `python3 cli-bart.py --list` option in the CLI to see all available stations.
 
 ## API Key
 
